@@ -49,18 +49,22 @@ func (client *Client) GetFuturesInstrumentCurrencies() ([]FuturesInstrumentCurre
 
 	限速规则：20次/2s
 	HTTP请求
-	GET /api/spot/v3/instruments/<instrument_id>/book
+	GET /api/futrurs/v3/instruments/<instrument_id>/book
 
 	签名请求示例
-	2018-09-12T07:57:09.130ZGET/api/spot/v3/instruments/LTC-USDT/book?size=10&depth=0.001
+	2018-09-12T07:57:09.130ZGET/api/futrurs/v3/instruments/LTC-USDT/book?size=10&depth=0.001
 
 */
 func (client *Client) GetFuturesInstrumentBook(InstrumentId string, optionalParams map[string]string) (FuturesInstrumentBookResult, error) {
 	var book FuturesInstrumentBookResult
 	params := NewParams()
-	if optionalParams != nil && len(optionalParams) > 0 {
-		params["size"] = optionalParams["size"]
-		params["depth"] = optionalParams["depth"]
+	if optionalParams != nil {
+		if v, ok := optionalParams["size"]; ok {
+			params["size"] = v
+		}
+		if v, ok := optionalParams["depth"]; ok {
+			params["depth"] = v
+		}
 	}
 	requestPath := BuildParams(GetInstrumentIdUri(FUTURES_INSTRUMENT_BOOK, InstrumentId), params)
 	_, _, err := client.Request(GET, requestPath, nil, &book)

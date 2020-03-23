@@ -9,11 +9,12 @@ package okex
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetSwapInstrumentPosition(t *testing.T) {
@@ -130,7 +131,10 @@ func TestClient_PublicAPI(t *testing.T) {
 	r13, err := c.GetSwapInstrumentsTicker()
 	simpleAssertTrue(r13, err, t, false)
 
-	r14, err := c.GetSwapDepthByInstrumentId(instrumentId, "1")
+	depthParams := map[string]string{}
+	depthParams["size"] = "1"
+	depthParams["depth"] = "0.01"
+	r14, err := c.GetSwapDepthByInstrumentId(instrumentId, depthParams)
 	simpleAssertTrue(r14, err, t, false)
 
 }
@@ -160,10 +164,10 @@ func TestClient_PrivateAPI(t *testing.T) {
 	r3, err := c.GetSwapAccountsSettingsByInstrument(instrumentId)
 	simpleAssertTrue(r3, err, t, false)
 
-	r4, err := c.PostSwapAccountsLeverage(instrumentId, "20", "3")
+	_, r4, err := c.PostSwapAccountsLeverage(instrumentId, "20", "3")
 	simpleAssertTrue(r4, err, t, false)
 
-	r5, err := c.PostSwapAccountsLeverage(instrumentId, "50", "3")
+	_, r5, err := c.PostSwapAccountsLeverage(instrumentId, "50", "3")
 	simpleAssertTrue(r5, err, t, false)
 	assert.True(t, int(r5.Code) > 30000)
 
@@ -175,7 +179,7 @@ func TestClient_PrivateAPI(t *testing.T) {
 	order.Type = "1"
 	order.MatchPrice = "1"
 	order.Price = "100"
-	r7, err := c.PostSwapOrder(instrumentId, &order)
+	_, r7, err := c.PostSwapOrder(instrumentId, order)
 	simpleAssertTrue(r7, err, t, false)
 
 	order2 := BasePlaceOrderInfo{}
@@ -183,18 +187,18 @@ func TestClient_PrivateAPI(t *testing.T) {
 	order2.Type = "1"
 	order2.MatchPrice = "1"
 	order2.Price = "200"
-	r8, err := c.PostSwapOrders(instrumentId, []*BasePlaceOrderInfo{&order, &order2})
+	_, r8, err := c.PostSwapOrders(instrumentId, []*BasePlaceOrderInfo{&order, &order2})
 	simpleAssertTrue(r8, err, t, false)
 
 	r81, err := c.GetSwapOrderByOrderId(instrumentId, r8.OrderInfo[0].OrderId)
 	simpleAssertTrue(r81, err, t, false)
 
 	orderId := r8.OrderInfo[0].OrderId
-	r9, err := c.PostSwapCancelOrder(instrumentId, orderId)
+	_, r9, err := c.PostSwapCancelOrder(instrumentId, orderId)
 	simpleAssertTrue(r9, err, t, false)
 
 	ids := []string{r8.OrderInfo[0].OrderId, r8.OrderInfo[1].OrderId}
-	r10, err := c.PostSwapBatchCancelOrders(instrumentId, ids)
+	_, r10, err := c.PostSwapBatchCancelOrders(instrumentId, ids)
 	simpleAssertTrue(r10, err, t, false)
 
 	params := map[string]string{}

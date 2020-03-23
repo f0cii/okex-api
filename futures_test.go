@@ -2,8 +2,9 @@ package okex
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -261,7 +262,7 @@ func TestFuturesOrder(t *testing.T) {
 	newOrderParams.MatchPrice = "0"
 	newOrderParams.Leverage = "20"
 
-	result, err := NewTestClient().FuturesOrder(newOrderParams)
+	_, result, err := NewTestClient().FuturesOrder(newOrderParams)
 	if err != nil {
 		t.Error(err)
 	}
@@ -287,7 +288,7 @@ func TestFuturesOrders(t *testing.T) {
 		t.Error(err)
 	}
 	batchNewOrder.OrdersData = json
-	result, err := NewTestClient().FuturesOrders(batchNewOrder)
+	_, result, err := NewTestClient().FuturesOrders(batchNewOrder)
 	if err != nil {
 		t.Error(err)
 	}
@@ -321,7 +322,7 @@ func TestBatchCancelFuturesInstrumentOrders(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	result, err := NewTestClient().BatchCancelFuturesInstrumentOrders(InstrumentId, json)
+	_, result, err := NewTestClient().BatchCancelFuturesInstrumentOrders(InstrumentId, json)
 	if err != nil {
 		t.Error(err)
 	}

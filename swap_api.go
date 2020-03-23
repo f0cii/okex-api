@@ -312,9 +312,13 @@ GET /api/swap/v3/instruments/<instrument_id>/depth?size=50
 func (client *Client) GetSwapDepthByInstrumentId(instrumentId string, optionalParams map[string]string) (SwapInstrumentDepth, error) {
 	sid := SwapInstrumentDepth{}
 	params := NewParams()
-	if optionalParams != nil && len(optionalParams) > 0 {
-		params["size"] = optionalParams["size"]
-		params["depth"] = optionalParams["depth"]
+	if optionalParams != nil {
+		if v, ok := optionalParams["size"]; ok {
+			params["size"] = v
+		}
+		if v, ok := optionalParams["depth"]; ok {
+			params["depth"] = v
+		}
 	}
 	requestPath := BuildParams(GetInstrumentIdUri(SWAP_INSTRUMENT_DEPTH, instrumentId), params)
 

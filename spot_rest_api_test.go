@@ -2,8 +2,9 @@ package okex
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetSpotAccounts(t *testing.T) {
@@ -108,7 +109,7 @@ func TestGetSpotInstrumentTicker(t *testing.T) {
 
 func TestGetSpotInstrumentTrade(t *testing.T) {
 	c := NewTestClient()
-	ac, err := c.GetSpotInstrumentTrade("BTC-USDT", nil)
+	_, ac, err := c.GetSpotInstrumentTrade("BTC-USDT", nil)
 	assert.True(t, err == nil)
 	jstr, _ := Struct2JsonString(ac)
 	println(jstr)
@@ -118,7 +119,7 @@ func TestGetSpotInstrumentTrade(t *testing.T) {
 	options["to"] = "2"
 	options["limit"] = "100"
 
-	ac2, err := c.GetSpotInstrumentTrade("BTC-USDT", &options)
+	_, ac2, err := c.GetSpotInstrumentTrade("BTC-USDT", &options)
 	assert.True(t, err == nil)
 	jstr, _ = Struct2JsonString(ac2)
 	println(jstr)
@@ -126,7 +127,7 @@ func TestGetSpotInstrumentTrade(t *testing.T) {
 
 func TestGetSpotInstrumentCandles(t *testing.T) {
 	c := NewTestClient()
-	ac, err := c.GetSpotInstrumentCandles("BTC-USDT", nil)
+	_, ac, err := c.GetSpotInstrumentCandles("BTC-USDT", nil)
 	assert.True(t, err == nil)
 	jstr, _ := Struct2JsonString(ac)
 	println(jstr)
@@ -140,13 +141,13 @@ func TestPostSpotOrders(t *testing.T) {
 	optionals["price"] = "100"
 	optionals["size"] = "0.01"
 
-	r0, err := c.PostSpotOrders("sell", "btc-usdt", &optionals)
+	_, r0, err := c.PostSpotOrders("sell", "btc-usdt", &optionals)
 	assert.True(t, err == nil)
 	jstr, _ := Struct2JsonString(r0)
 	println(jstr)
 
 	orderId := r0.OrderID
-	r, err := c.PostSpotCancelOrders("btc-usdt", orderId)
+	_, r, err := c.PostSpotCancelOrders("btc-usdt", orderId)
 	assert.True(t, r != nil && err == nil)
 	jstr, _ = Struct2JsonString(r)
 	println(jstr)
@@ -161,7 +162,7 @@ func TestClient_PostSpotBatchOrders(t *testing.T) {
 		map[string]string{"client_oid": "r20180728r", "instrument_id": "btc-usdt", "side": "sell", "type": "limit", " size ": "0.001", "notional": "10002", "margin_trading ": "1"},
 	}
 
-	r, err := c.PostSpotBatchOrders(&orderInfos)
+	_, r, err := c.PostSpotBatchOrders(&orderInfos)
 	assert.True(t, r != nil && err == nil)
 	jstr, _ := Struct2JsonString(r)
 	println(jstr)
@@ -175,7 +176,7 @@ func TestClient_PostSpotCancelBatchOrders(t *testing.T) {
 		map[string]interface{}{"instrument_id": "ltc-usdt", "client_oid": "243464oo234465"},
 	}
 
-	r, err := c.PostSpotCancelBatchOrders(&orderInfos)
+	_, r, err := c.PostSpotCancelBatchOrders(&orderInfos)
 	assert.True(t, r != nil && err == nil)
 	jstr, _ := Struct2JsonString(r)
 	println(jstr)
