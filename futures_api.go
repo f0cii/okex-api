@@ -52,7 +52,7 @@ func (client *Client) GetFuturesInstrumentCurrencies() ([]FuturesInstrumentCurre
 	GET /api/futrurs/v3/instruments/<instrument_id>/book
 
 	签名请求示例
-	2018-09-12T07:57:09.130ZGET/api/futrurs/v3/instruments/LTC-USDT/book?size=10&depth=0.001
+	2018-09-12T07:57:09.130ZGET/api/futrurs/v3/instruments/BTC-USD-180309/book?size=10&depth=0.001
 
 */
 func (client *Client) GetFuturesInstrumentBook(InstrumentId string, optionalParams map[string]string) (FuturesInstrumentBookResult, error) {
