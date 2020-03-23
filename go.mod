@@ -1,4 +1,4 @@
-module gitlab.com/cryptocurrencystrategy/okex-go-sdk-api
+module github.com/frankrap/okex-api
 
 go 1.12
 
