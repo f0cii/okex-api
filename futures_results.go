@@ -251,7 +251,10 @@ type OrderInfo struct {
 
 type FuturesCancelInstrumentOrderResult struct {
 	Result
+	ErrorCode    int    `json:"error_code,string"`
+	ErrorMessage string `json:"error_message"`
 	OrderId      string `json:"order_id"`
+	ClientOid    string `json:"client_oid"`
 	InstrumentId string `json:"instrument_id"`
 }
 
