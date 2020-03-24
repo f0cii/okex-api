@@ -288,6 +288,7 @@ type FuturesGetOrderResult struct {
 	Status       string  `json:"status"`
 	State        int     `json:"state,string"`
 	Type         int     `json:"type,string"`
+	OrderType    int     `json:"order_type,string"`
 	ContractVal  float64 `json:"contract_val,string"`
 	Leverage     float64 `json:"leverage,string"`
 }
