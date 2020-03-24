@@ -260,13 +260,19 @@ func (client *Client) FuturesOrders(batchNewOrder FuturesBatchNewOrderParams) ([
 /*
  Get all of futures contract order list
 */
-func (client *Client) GetFuturesOrders(InstrumentId string, status, from, to, limit int) (FuturesGetOrdersResult, error) {
+func (client *Client) GetFuturesOrders(InstrumentId string, status int, after string, before string, limit int) (FuturesGetOrdersResult, error) {
 	var ordersResult FuturesGetOrdersResult
 	params := NewParams()
 	params["status"] = Int2String(status)
-	params["from"] = Int2String(from)
-	params["to"] = Int2String(to)
-	params["limit"] = Int2String(limit)
+	if after != "" {
+		params["after"] = after
+	}
+	if before != "" {
+		params["before"] = before
+	}
+	if limit > 0 {
+		params["limit"] = Int2String(limit)
+	}
 	requestPath := BuildParams(GetInstrumentIdUri(FUTURES_INSTRUMENT_ORDER_LIST, InstrumentId), params)
 	_, _, err := client.Request(GET, requestPath, nil, &ordersResult)
 	return ordersResult, err

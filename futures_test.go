@@ -296,8 +296,9 @@ func TestFuturesOrders(t *testing.T) {
 }
 
 func TestGetFuturesOrders(t *testing.T) {
-	status, from, to, limit := 0, 1, 0, 5
-	orderList, err := NewTestClient().GetFuturesOrders(InstrumentId, status, from, to, limit)
+	status, limit := 0, 5
+	after, before := "", ""
+	orderList, err := NewTestClient().GetFuturesOrders(InstrumentId, status, after, before, limit)
 	if err != nil {
 		t.Error(err)
 	}
