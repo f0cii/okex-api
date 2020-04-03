@@ -92,7 +92,7 @@ type BaseOrderInfo struct {
 	Price        float64 `json:"price,string"`
 	PriceAvg     float64 `json:"price_avg,string"`
 	Size         int64   `json:"size,string"`
-	Fee          float64 `json:"fee,fee"`
+	Fee          float64 `json:"fee,string"`
 	FilledQty    float64 `json:"filled_qty,string"`
 	ContractVal  string  `json:"contract_val"`
 	Type         float64 `json:"type,string"`

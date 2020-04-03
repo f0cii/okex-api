@@ -9,6 +9,7 @@ package okex
 
 import (
 	"errors"
+	"log"
 	"strings"
 )
 
@@ -250,7 +251,8 @@ func (client *Client) GetSwapOrderById(instrumentId, orderOrClientId string) (Ba
 	baseUri := GetInstrumentIdUri(SWAP_INSTRUMENT_ORDER_BY_ID, instrumentId)
 	uri := strings.Replace(baseUri, "{order_client_id}", orderOrClientId, -1)
 
-	if _, _, err := client.Request(GET, uri, nil, &orderInfo); err != nil {
+	if r, _, err := client.Request(GET, uri, nil, &orderInfo); err != nil {
+		log.Printf("r: %v", string(r))
 		return BaseOrderInfo{}, err
 	}
 
