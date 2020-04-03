@@ -96,6 +96,7 @@ type BaseOrderInfo struct {
 	FilledQty    float64 `json:"filled_qty,string"`
 	ContractVal  string  `json:"contract_val"`
 	Type         float64 `json:"type,string"`
+	OrderType    string  `json:"order_type"`
 	State        int     `json:"state,string"`
 }
 
@@ -151,13 +152,12 @@ type BaseInstrumentInfo struct {
 
 type SwapInstrumentList []BaseInstrumentInfo
 
-type BaesDepthInfo []interface{}
 type SwapInstrumentDepth struct {
 	BizWarmTips
-	Timestamp string          `json:"timestamp"`
-	Time      string          `json:"time"`
-	Bids      []BaesDepthInfo `json:"bids"`
-	Asks      []BaesDepthInfo `json:"asks"`
+	Timestamp string     `json:"timestamp"`
+	Time      string     `json:"time"`
+	Bids      [][]string `json:"bids"`
+	Asks      [][]string `json:"asks"`
 }
 
 type BaseTickerInfo struct {
