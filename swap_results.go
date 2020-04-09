@@ -181,7 +181,7 @@ type BaseTradeInfo struct {
 
 type SwapTradeList []BaseTradeInfo
 
-type BaseCandleInfo []interface{}
+type BaseCandleInfo []string
 type SwapCandleList []BaseCandleInfo
 
 type SwapIndexInfo struct {
