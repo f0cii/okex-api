@@ -107,9 +107,15 @@ func (client *Client) GetFuturesInstrumentCandles(InstrumentId string, optionalP
 	params := NewParams()
 
 	if optionalParams != nil && len(optionalParams) > 0 {
-		params["start"] = optionalParams["start"]
-		params["end"] = optionalParams["end"]
-		params["granularity"] = optionalParams["granularity"]
+		if v, ok := optionalParams["start"]; ok {
+			params["start"] = v
+		}
+		if v, ok := optionalParams["end"]; ok {
+			params["end"] = v
+		}
+		if v, ok := optionalParams["granularity"]; ok {
+			params["granularity"] = v
+		}
 	}
 	requestPath := BuildParams(GetInstrumentIdUri(FUTURES_INSTRUMENT_CANDLES, InstrumentId), params)
 	_, _, err := client.Request(GET, requestPath, nil, &candles)
