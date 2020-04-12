@@ -9,6 +9,7 @@ package okex
 
 import (
 	"bytes"
+	"compress/flate"
 	"crypto/hmac"
 	"crypto/md5"
 	"crypto/sha256"
@@ -16,6 +17,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"sort"
@@ -377,4 +379,8 @@ func GetInstrumentIdOrdersUri(uri, instrumentId string, orderId string) string {
 
 func GetUnderlyingUri(uri, underlying string) string {
 	return strings.Replace(uri, "{underlying}", underlying, -1)
+}
+
+func FlateUnCompress(data []byte) ([]byte, error) {
+	return ioutil.ReadAll(flate.NewReader(bytes.NewReader(data)))
 }
