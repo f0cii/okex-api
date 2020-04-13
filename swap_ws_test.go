@@ -36,12 +36,12 @@ func TestSwapWS_AllInOne(t *testing.T) {
 	ws.SetAccountCallback(func(accounts []WSAccount) {
 		log.Printf("%#v", accounts)
 	})
-	//ws.SubscribeTicker("ticker_1", "BTC-USD-200626")
-	//ws.SubscribeTrade("trade_1", "BTC-USD-200626")
-	//ws.SubscribeDepthL2Tbt("depthL2_1", "BTC-USD-200626")
-	//ws.SubscribeOrder("order_1", "BTC-USD-200626")
-	ws.SubscribePosition("position_1", "BTC-USD-200626")
-	ws.SubscribeAccount("account_1", "BTC") // BTC/BTC-USDT
+	//ws.SubscribeTicker("ticker_1", "BTC-USD-SWAP")
+	//ws.SubscribeTrade("trade_1", "BTC-USD-SWAP")
+	//ws.SubscribeDepthL2Tbt("depthL2_1", "BTC-USD-SWAP")
+	//ws.SubscribeOrder("order_1", "BTC-USD-SWAP")
+	ws.SubscribePosition("position_1", "BTC-USD-SWAP")
+	ws.SubscribeAccount("account_1", "BTC-USD-SWAP")
 	ws.Start()
 
 	select {}
