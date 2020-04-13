@@ -1,7 +1,7 @@
 package okex
 
 import (
-	"encoding/json"
+	sjson "encoding/json"
 	"time"
 )
 
@@ -49,24 +49,24 @@ type MarginNewOrderResult struct {
 }
 
 type MarginGetOrderResult struct {
-	ClientOid      string      `json:"client_oid"`
-	CreatedAt      time.Time   `json:"created_at"`
-	FilledNotional json.Number `json:"filled_notional"`
-	FilledSize     json.Number `json:"filled_size"`
-	Funds          string      `json:"funds"`
-	InstrumentID   string      `json:"instrument_id"`
-	Notional       string      `json:"notional"`
-	OrderID        string      `json:"order_id"`
-	OrderType      json.Number `json:"order_type"` /*int*/
-	Price          json.Number `json:"price"`
-	PriceAvg       json.Number `json:"price_avg"`
-	ProductID      string      `json:"product_id"`
-	Side           string      `json:"side"`
-	Size           json.Number `json:"size"`
-	Status         string      `json:"status"` // status为state旧版参数，会短期兼容，建议尽早切换state
-	State          json.Number `json:"state"`  /*int*/ // -2:失败 -1:撤单成功 0:等待成交 1:部分成交 2:完全成交 3:下单中 4:撤单中
-	Timestamp      time.Time   `json:"timestamp"`
-	Type           string      `json:"type"`
+	ClientOid      string       `json:"client_oid"`
+	CreatedAt      time.Time    `json:"created_at"`
+	FilledNotional sjson.Number `json:"filled_notional"`
+	FilledSize     sjson.Number `json:"filled_size"`
+	Funds          string       `json:"funds"`
+	InstrumentID   string       `json:"instrument_id"`
+	Notional       string       `json:"notional"`
+	OrderID        string       `json:"order_id"`
+	OrderType      sjson.Number `json:"order_type"` /*int*/
+	Price          sjson.Number `json:"price"`
+	PriceAvg       sjson.Number `json:"price_avg"`
+	ProductID      string       `json:"product_id"`
+	Side           string       `json:"side"`
+	Size           sjson.Number `json:"size"`
+	Status         string       `json:"status"` // status为state旧版参数，会短期兼容，建议尽早切换state
+	State          sjson.Number `json:"state"`  /*int*/ // -2:失败 -1:撤单成功 0:等待成交 1:部分成交 2:完全成交 3:下单中 4:撤单中
+	Timestamp      time.Time    `json:"timestamp"`
+	Type           string       `json:"type"`
 }
 
 type FillItem struct {

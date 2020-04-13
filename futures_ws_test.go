@@ -46,3 +46,14 @@ func TestFuturesWS_AllInOne(t *testing.T) {
 
 	select {}
 }
+
+func TestFuturesWS_Depth20(t *testing.T) {
+	ws := newFuturesWSForTest()
+	ws.SetDepth20SnapshotCallback(func(ob *OrderBook) {
+		log.Printf("%#v", ob)
+	})
+	ws.SubscribeDepthL2Tbt("depthL2_1", "BTC-USD-200626")
+	ws.Start()
+
+	select {}
+}

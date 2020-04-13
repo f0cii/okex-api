@@ -14,7 +14,6 @@ import (
 	"crypto/md5"
 	"crypto/sha256"
 	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"

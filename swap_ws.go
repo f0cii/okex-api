@@ -2,7 +2,6 @@ package okex
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/recws-org/recws"
 	"github.com/tidwall/gjson"
@@ -36,12 +35,15 @@ type SwapWS struct {
 
 	subscriptions map[string]interface{}
 
-	tickersCallback    func(tickers []WSTicker)
-	tradesCallback     func(trades []WSTrade)
-	depthL2TbtCallback func(action string, data []WSDepthL2Tbt)
-	accountCallback    func(accounts []WSAccount)
-	positionCallback   func(positions []WSSwapPositionData)
-	orderCallback      func(orders []WSOrder)
+	tickersCallback         func(tickers []WSTicker)
+	tradesCallback          func(trades []WSTrade)
+	depthL2TbtCallback      func(action string, data []WSDepthL2Tbt)
+	depth20SnapshotCallback func(ob *OrderBook) // 20档盘口
+	accountCallback         func(accounts []WSAccount)
+	positionCallback        func(positions []WSSwapPositionData)
+	orderCallback           func(orders []WSOrder)
+
+	dobMap map[string]*DepthOrderBook
 }
 
 // SetProxy 设置代理地址
@@ -69,6 +71,10 @@ func (ws *SwapWS) SetTradeCallback(callback func(trades []WSTrade)) {
 
 func (ws *SwapWS) SetDepthL2TbtCallback(callback func(action string, data []WSDepthL2Tbt)) {
 	ws.depthL2TbtCallback = callback
+}
+
+func (ws *SwapWS) SetDepth20SnapshotCallback(callback func(ob *OrderBook)) {
+	ws.depth20SnapshotCallback = callback
 }
 
 func (ws *SwapWS) SetAccountCallback(callback func(accounts []WSAccount)) {
@@ -245,6 +251,22 @@ func (ws *SwapWS) handleMsg(messageType int, msg []byte) {
 			if ws.depthL2TbtCallback != nil {
 				ws.depthL2TbtCallback(depthL2.Action, depthL2.Data)
 			}
+
+			if ws.depth20SnapshotCallback != nil {
+				for _, v := range depthL2.Data {
+					var ob OrderBook
+					if v1, ok := ws.dobMap[v.InstrumentID]; ok {
+						v1.Update(depthL2.Action, &v)
+						ob = v1.GetOrderBook(20)
+					} else {
+						dob := NewDepthOrderBook(v.InstrumentID)
+						dob.Update(depthL2.Action, &v)
+						ws.dobMap[v.InstrumentID] = dob
+						ob = dob.GetOrderBook(20)
+					}
+					ws.depth20SnapshotCallback(&ob)
+				}
+			}
 			return
 		} else if table == TableSwapTicker {
 			var tickerResult WSTickerResult
@@ -369,6 +391,7 @@ func NewSwapWS(wsURL string, accessKey string, secretKey string, passphrase stri
 		secretKey:     secretKey,
 		passphrase:    passphrase,
 		subscriptions: make(map[string]interface{}),
+		dobMap:        make(map[string]*DepthOrderBook),
 	}
 	ws.ctx, ws.cancel = context.WithCancel(context.Background())
 	ws.wsConn = recws.RecConn{

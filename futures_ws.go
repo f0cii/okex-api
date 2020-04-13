@@ -2,7 +2,6 @@ package okex
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/recws-org/recws"
 	"github.com/tidwall/gjson"
@@ -20,9 +19,6 @@ const (
 	TableFuturesPosition   = "futures/position"     // 用户持仓频道
 	TableFuturesAccount    = "futures/account"      // 用户账户频道
 	TableFuturesOrder      = "futures/order"        // 用户交易频道
-
-	ActionDepthL2Partial = "partial"
-	ActionDepthL2Update  = "update"
 )
 
 type FuturesWS struct {
@@ -39,12 +35,15 @@ type FuturesWS struct {
 
 	subscriptions map[string]interface{}
 
-	tickersCallback    func(tickers []WSTicker)
-	tradesCallback     func(trades []WSTrade)
-	depthL2TbtCallback func(action string, data []WSDepthL2Tbt)
-	accountCallback    func(accounts []WSAccount)
-	positionCallback   func(positions []WSFuturesPosition)
-	orderCallback      func(orders []WSOrder)
+	tickersCallback         func(tickers []WSTicker)
+	tradesCallback          func(trades []WSTrade)
+	depthL2TbtCallback      func(action string, data []WSDepthL2Tbt)
+	depth20SnapshotCallback func(ob *OrderBook) // 20档盘口
+	accountCallback         func(accounts []WSAccount)
+	positionCallback        func(positions []WSFuturesPosition)
+	orderCallback           func(orders []WSOrder)
+
+	dobMap map[string]*DepthOrderBook
 }
 
 // SetProxy 设置代理地址
@@ -72,6 +71,10 @@ func (ws *FuturesWS) SetTradeCallback(callback func(trades []WSTrade)) {
 
 func (ws *FuturesWS) SetDepthL2TbtCallback(callback func(action string, data []WSDepthL2Tbt)) {
 	ws.depthL2TbtCallback = callback
+}
+
+func (ws *FuturesWS) SetDepth20SnapshotCallback(callback func(ob *OrderBook)) {
+	ws.depth20SnapshotCallback = callback
 }
 
 func (ws *FuturesWS) SetAccountCallback(callback func(accounts []WSAccount)) {
@@ -249,6 +252,7 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 
 	// Ticker 消息
 	// {"table":"futures/ticker","data":[{"last":"6768.28","open_24h":"6887.16","best_bid":"6765.49","high_24h":"6889.64","low_24h":"6711","volume_24h":"4012676","volume_token_24h":"59026.9171","best_ask":"6765.5","open_interest":"2789329","instrument_id":"BTC-USD-200626","timestamp":"2020-04-12T06:19:03.829Z","best_bid_size":"129","best_ask_size":"6","last_qty":"2"}]}
+
 	if tableValue := ret.Get("table"); tableValue.Exists() {
 		table := tableValue.String()
 		if table == TableFuturesDepthL2Tbt { // 优先判断最高频数据
@@ -265,6 +269,22 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 
 			if ws.depthL2TbtCallback != nil {
 				ws.depthL2TbtCallback(depthL2.Action, depthL2.Data)
+			}
+
+			if ws.depth20SnapshotCallback != nil {
+				for _, v := range depthL2.Data {
+					var ob OrderBook
+					if v1, ok := ws.dobMap[v.InstrumentID]; ok {
+						v1.Update(depthL2.Action, &v)
+						ob = v1.GetOrderBook(20)
+					} else {
+						dob := NewDepthOrderBook(v.InstrumentID)
+						dob.Update(depthL2.Action, &v)
+						ws.dobMap[v.InstrumentID] = dob
+						ob = dob.GetOrderBook(20)
+					}
+					ws.depth20SnapshotCallback(&ob)
+				}
 			}
 			return
 		} else if table == TableFuturesTicker {
@@ -390,6 +410,7 @@ func NewFuturesWS(wsURL string, accessKey string, secretKey string, passphrase s
 		secretKey:     secretKey,
 		passphrase:    passphrase,
 		subscriptions: make(map[string]interface{}),
+		dobMap:        make(map[string]*DepthOrderBook),
 	}
 	ws.ctx, ws.cancel = context.WithCancel(context.Background())
 	ws.wsConn = recws.RecConn{
