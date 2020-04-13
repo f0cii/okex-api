@@ -217,11 +217,17 @@ func (ws *FuturesWS) run() {
 
 func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 	ret := gjson.ParseBytes(msg)
+	// 登录成功
+	// {"event":"login","success":true}
+
 	// Ticker 订阅成功
 	// {"event":"subscribe","channel":"futures/ticker:BTC-USD-200626"}
 
 	// 错误消息
 	// {"event":"error","message":"User not logged in / User must be logged in","errorCode":30041}
+
+	// 委托
+	// {"table":"futures/order","data":[{"leverage":"10","last_fill_time":"1970-01-01T00:00:00.000Z","filled_qty":"0","fee":"0","price_avg":"0","type":"1","client_oid":"","last_fill_qty":"0","instrument_id":"BTC-USD-200626","last_fill_px":"0","pnl":"0","size":"1","price":"6200","last_fill_id":"0","error_code":"0","state":"0","contract_val":"100","order_id":"4718613348289537","order_type":"0","timestamp":"2020-04-13T00:05:25.760Z","status":"0"}]}
 
 	// Ticker 消息
 	// {"table":"futures/ticker","data":[{"last":"6768.28","open_24h":"6887.16","best_bid":"6765.49","high_24h":"6889.64","low_24h":"6711","volume_24h":"4012676","volume_token_24h":"59026.9171","best_ask":"6765.5","open_interest":"2789329","instrument_id":"BTC-USD-200626","timestamp":"2020-04-12T06:19:03.829Z","best_bid_size":"129","best_ask_size":"6","last_qty":"2"}]}
