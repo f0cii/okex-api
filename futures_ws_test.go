@@ -20,21 +20,28 @@ func newFuturesWSForTest() *FuturesWS {
 	wsURL := "wss://real.okex.com:8443/ws/v3"
 	ws := NewFuturesWS(wsURL,
 		accessKey, secretKey, passphrase)
-	err = ws.SetProxy("socks5://127.0.0.1:1080")
-	//ws.SetProxy("http://127.0.0.1:1080")
-	if err != nil {
-		log.Fatal(err)
-	}
+	//err = ws.SetProxy("socks5://127.0.0.1:1080")
+	////ws.SetProxy("http://127.0.0.1:1080")
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
 	return ws
 }
 
 func TestFuturesWS_AllInOne(t *testing.T) {
 	ws := newFuturesWSForTest()
+	ws.SetTickerCallback(func(tickers []WSFuturesTicker) {
+		log.Printf("%#v", tickers)
+	})
+	ws.SetAccountCallback(func(accounts []WSAccount) {
+		log.Printf("%#v", accounts)
+	})
 	//ws.SubscribeTicker("ticker_1", "BTC-USD-200626")
 	//ws.SubscribeTrade("trade_1", "BTC-USD-200626")
 	//ws.SubscribeDepthL2Tbt("depthL2_1", "BTC-USD-200626")
 	//ws.SubscribeOrder("order_1", "BTC-USD-200626")
-	ws.SubscribeOrder("position_1", "BTC-USD-200626")
+	ws.SubscribePosition("position_1", "BTC-USD-200626")
+	ws.SubscribeAccount("account_1", "BTC") // BTC/BTC-USDT
 	ws.Start()
 
 	select {}

@@ -42,6 +42,8 @@ type FuturesWS struct {
 	tickersCallback    func(tickers []WSFuturesTicker)
 	tradesCallback     func(trades []WSFuturesTrade)
 	depthL2TbtCallback func(action string, data []WSDepthL2Tbt)
+	accountCallback    func(accounts []WSFuturesAccount)
+	orderCallback      func(orders []WSFuturesOrder)
 }
 
 // SetProxy 设置代理地址
@@ -69,6 +71,14 @@ func (ws *FuturesWS) SetTradeCallback(callback func(trades []WSFuturesTrade)) {
 
 func (ws *FuturesWS) SetDepthL2TbtCallback(callback func(action string, data []WSDepthL2Tbt)) {
 	ws.depthL2TbtCallback = callback
+}
+
+func (ws *FuturesWS) SetAccountCallback(callback func(accounts []WSFuturesAccount)) {
+	ws.accountCallback = callback
+}
+
+func (ws *FuturesWS) SetOrderCallback(callback func(orders []WSFuturesOrder)) {
+	ws.orderCallback = callback
 }
 
 func (ws *FuturesWS) SubscribeTicker(id string, symbol string) error {
@@ -229,6 +239,9 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 	// 委托
 	// {"table":"futures/order","data":[{"leverage":"10","last_fill_time":"1970-01-01T00:00:00.000Z","filled_qty":"0","fee":"0","price_avg":"0","type":"1","client_oid":"","last_fill_qty":"0","instrument_id":"BTC-USD-200626","last_fill_px":"0","pnl":"0","size":"1","price":"6200","last_fill_id":"0","error_code":"0","state":"0","contract_val":"100","order_id":"4718613348289537","order_type":"0","timestamp":"2020-04-13T00:05:25.760Z","status":"0"}]}
 
+	// 账户资产变动
+	// {"table":"futures/account","data":[{"BTC":{"available":"0.01867179","can_withdraw":"0.01867179","currency":"BTC","equity":"0.02018113","liqui_mode":"tier","maint_margin_ratio":"0.005","margin":"0.00150934","margin_for_unfilled":"0","margin_frozen":"0.00150934","margin_mode":"crossed","margin_ratio":"1.3370831","open_max":"0","realized_pnl":"-0.00034029","timestamp":"2020-04-12T08:00:13.975Z","total_avail_balance":"0.02046331","underlying":"BTC-USD","unrealized_pnl":"0.00005811"}}]}
+
 	// Ticker 消息
 	// {"table":"futures/ticker","data":[{"last":"6768.28","open_24h":"6887.16","best_bid":"6765.49","high_24h":"6889.64","low_24h":"6711","volume_24h":"4012676","volume_token_24h":"59026.9171","best_ask":"6765.5","open_interest":"2789329","instrument_id":"BTC-USD-200626","timestamp":"2020-04-12T06:19:03.829Z","best_bid_size":"129","best_ask_size":"6","last_qty":"2"}]}
 	if tableValue := ret.Get("table"); tableValue.Exists() {
@@ -274,11 +287,76 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 			}
 			return
 		} else if table == TableFuturesAccount {
+			var accountResult WSFuturesAccountResult
+			err := json.Unmarshal(msg, &accountResult)
+			if err != nil {
+				log.Printf("%v", err)
+				return
+			}
 
+			if ws.accountCallback != nil {
+				var accounts []WSFuturesAccount
+				for _, v := range accountResult.Data {
+					if v.BTC != nil {
+						accounts = append(accounts, *v.BTC)
+						continue
+					}
+					if v.ETH != nil {
+						accounts = append(accounts, *v.ETH)
+						continue
+					}
+					if v.ETC != nil {
+						accounts = append(accounts, *v.ETC)
+						continue
+					}
+					if v.XRP != nil {
+						accounts = append(accounts, *v.XRP)
+						continue
+					}
+					if v.EOS != nil {
+						accounts = append(accounts, *v.EOS)
+						continue
+					}
+					if v.BCH != nil {
+						accounts = append(accounts, *v.BCH)
+						continue
+					}
+					if v.BSV != nil {
+						accounts = append(accounts, *v.BSV)
+						continue
+					}
+					if v.TRX != nil {
+						accounts = append(accounts, *v.TRX)
+						continue
+					}
+				}
+				ws.accountCallback(accounts)
+			}
+			return
 		} else if table == TableFuturesPosition {
+			var positionResult WSFuturesPositionResult
+			err := json.Unmarshal(msg, &positionResult)
+			if err != nil {
+				log.Printf("%v", err)
+				return
+			}
 
+			if ws.orderCallback != nil {
+				ws.orderCallback(positionResult.Data)
+			}
+			return
 		} else if table == TableFuturesOrder {
+			var orderResult WSFuturesOrderResult
+			err := json.Unmarshal(msg, &orderResult)
+			if err != nil {
+				log.Printf("%v", err)
+				return
+			}
 
+			if ws.orderCallback != nil {
+				ws.orderCallback(orderResult.Data)
+			}
+			return
 		}
 		log.Printf("%v", string(msg))
 		return
