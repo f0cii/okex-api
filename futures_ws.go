@@ -39,11 +39,12 @@ type FuturesWS struct {
 
 	subscriptions map[string]interface{}
 
-	tickersCallback    func(tickers []WSFuturesTicker)
-	tradesCallback     func(trades []WSFuturesTrade)
+	tickersCallback    func(tickers []WSTicker)
+	tradesCallback     func(trades []WSTrade)
 	depthL2TbtCallback func(action string, data []WSDepthL2Tbt)
-	accountCallback    func(accounts []WSFuturesAccount)
-	orderCallback      func(orders []WSFuturesOrder)
+	accountCallback    func(accounts []WSAccount)
+	positionCallback   func(positions []WSFuturesPosition)
+	orderCallback      func(orders []WSOrder)
 }
 
 // SetProxy 设置代理地址
@@ -61,11 +62,11 @@ func (ws *FuturesWS) SetProxy(proxyURL string) (err error) {
 	return
 }
 
-func (ws *FuturesWS) SetTickerCallback(callback func(tickers []WSFuturesTicker)) {
+func (ws *FuturesWS) SetTickerCallback(callback func(tickers []WSTicker)) {
 	ws.tickersCallback = callback
 }
 
-func (ws *FuturesWS) SetTradeCallback(callback func(trades []WSFuturesTrade)) {
+func (ws *FuturesWS) SetTradeCallback(callback func(trades []WSTrade)) {
 	ws.tradesCallback = callback
 }
 
@@ -73,11 +74,15 @@ func (ws *FuturesWS) SetDepthL2TbtCallback(callback func(action string, data []W
 	ws.depthL2TbtCallback = callback
 }
 
-func (ws *FuturesWS) SetAccountCallback(callback func(accounts []WSFuturesAccount)) {
+func (ws *FuturesWS) SetAccountCallback(callback func(accounts []WSAccount)) {
 	ws.accountCallback = callback
 }
 
-func (ws *FuturesWS) SetOrderCallback(callback func(orders []WSFuturesOrder)) {
+func (ws *FuturesWS) SetPositionCallback(callback func(positions []WSFuturesPosition)) {
+	ws.positionCallback = callback
+}
+
+func (ws *FuturesWS) SetOrderCallback(callback func(orders []WSOrder)) {
 	ws.orderCallback = callback
 }
 
@@ -263,7 +268,7 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 			}
 			return
 		} else if table == TableFuturesTicker {
-			var tickerResult WSFuturesTickerResult
+			var tickerResult WSTickerResult
 			err := json.Unmarshal(msg, &tickerResult)
 			if err != nil {
 				log.Printf("%v", err)
@@ -275,7 +280,7 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 			}
 			return
 		} else if table == TableFuturesTrade {
-			var tradeResult WSFuturesTradeResult
+			var tradeResult WSTradeResult
 			err := json.Unmarshal(msg, &tradeResult)
 			if err != nil {
 				log.Printf("%v", err)
@@ -287,7 +292,7 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 			}
 			return
 		} else if table == TableFuturesAccount {
-			var accountResult WSFuturesAccountResult
+			var accountResult WSAccountResult
 			err := json.Unmarshal(msg, &accountResult)
 			if err != nil {
 				log.Printf("%v", err)
@@ -295,7 +300,7 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 			}
 
 			if ws.accountCallback != nil {
-				var accounts []WSFuturesAccount
+				var accounts []WSAccount
 				for _, v := range accountResult.Data {
 					if v.BTC != nil {
 						accounts = append(accounts, *v.BTC)
@@ -341,12 +346,12 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 				return
 			}
 
-			if ws.orderCallback != nil {
-				ws.orderCallback(positionResult.Data)
+			if ws.positionCallback != nil {
+				ws.positionCallback(positionResult.Data)
 			}
 			return
 		} else if table == TableFuturesOrder {
-			var orderResult WSFuturesOrderResult
+			var orderResult WSOrderResult
 			err := json.Unmarshal(msg, &orderResult)
 			if err != nil {
 				log.Printf("%v", err)

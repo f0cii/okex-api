@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func newFuturesWSForTest() *FuturesWS {
+func newSwapWSForTest() *FuturesWS {
 	viper.SetConfigName("test_config")
 	viper.AddConfigPath("./conf")
 	err := viper.ReadInConfig()
@@ -28,8 +28,8 @@ func newFuturesWSForTest() *FuturesWS {
 	return ws
 }
 
-func TestFuturesWS_AllInOne(t *testing.T) {
-	ws := newFuturesWSForTest()
+func TestSwapWS_AllInOne(t *testing.T) {
+	ws := newSwapWSForTest()
 	ws.SetTickerCallback(func(tickers []WSTicker) {
 		log.Printf("%#v", tickers)
 	})

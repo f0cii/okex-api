@@ -16,47 +16,14 @@ import (
 	"strings"
 )
 
+var (
+	ERR_WS_SUBSCRIOTION_PARAMS = errors.New(`ws subscription parameter error`)
+	ERR_WS_CACHE_NOT_MATCH     = errors.New(`ws hot cache not matched`)
+)
+
 type BaseOp struct {
 	Op   string   `json:"op"`
 	Args []string `json:"args"`
-}
-
-func subscribeOp(sts []*SubscriptionTopic) (op *BaseOp, err error) {
-
-	strArgs := []string{}
-
-	for i := 0; i < len(sts); i++ {
-		channel, err := sts[i].ToString()
-		if err != nil {
-			return nil, err
-		}
-		strArgs = append(strArgs, channel)
-	}
-
-	b := BaseOp{
-		Op:   "subscribe",
-		Args: strArgs,
-	}
-	return &b, nil
-}
-
-func unsubscribeOp(sts []*SubscriptionTopic) (op *BaseOp, err error) {
-
-	strArgs := []string{}
-
-	for i := 0; i < len(sts); i++ {
-		channel, err := sts[i].ToString()
-		if err != nil {
-			return nil, err
-		}
-		strArgs = append(strArgs, channel)
-	}
-
-	b := BaseOp{
-		Op:   CHNL_EVENT_UNSUBSCRIBE,
-		Args: strArgs,
-	}
-	return &b, nil
 }
 
 func loginOp(apiKey string, passphrase string, timestamp string, sign string) (op *BaseOp, err error) {
