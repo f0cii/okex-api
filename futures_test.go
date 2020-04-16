@@ -52,7 +52,9 @@ func TestGetFuturesInstrumentsCurrencies(t *testing.T) {
 
 func TestGetFuturesInstrumentBook(t *testing.T) {
 	insId := getValidInstrumentId()
-	book, err := NewTestClient().GetFuturesInstrumentBook(insId, nil)
+	params := map[string]string{}
+	params["size"] = "10"
+	book, err := NewTestClient().GetFuturesInstrumentBook(insId, params)
 	if err != nil {
 		t.Error(err)
 	}

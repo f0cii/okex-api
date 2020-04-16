@@ -343,8 +343,8 @@ type FuturesInstrumentCurrenciesResult struct {
 }
 
 type FuturesInstrumentBookResult struct {
-	Asks      [][]string `json:"asks,string"`
-	Bids      [][]string `json:"bids,string"`
+	Asks      [][]string `json:"asks"`
+	Bids      [][]string `json:"bids"`
 	Timestamp string     `json:"timestamp"`
 }
 
