@@ -1,5 +1,7 @@
 package okex
 
+import "net/http"
+
 /*
  OKEX api config info
  @author Tony Tian
@@ -28,4 +30,6 @@ type Config struct {
 	I18n string
 	// 设置代理 http://127.0.0.1:1080
 	ProxyURL string
+	// Custom http client
+	HTTPClient *http.Client
 }

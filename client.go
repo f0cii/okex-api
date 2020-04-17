@@ -35,22 +35,26 @@ type ApiMessage struct {
 func NewClient(config Config) *Client {
 	var client Client
 	client.Config = config
-	timeout := config.TimeoutSecond
-	if timeout <= 0 {
-		timeout = 30
-	}
-	transport := &http.Transport{}
-	if config.ProxyURL != "" {
-		proxyURL_, err := url.Parse(config.ProxyURL)
-		if err != nil {
-			return nil
+	httpClient := config.HTTPClient
+	if httpClient == nil {
+		timeout := config.TimeoutSecond
+		if timeout <= 0 {
+			timeout = 30
 		}
-		transport.Proxy = http.ProxyURL(proxyURL_)
+		transport := &http.Transport{}
+		if config.ProxyURL != "" {
+			proxyURL_, err := url.Parse(config.ProxyURL)
+			if err != nil {
+				return nil
+			}
+			transport.Proxy = http.ProxyURL(proxyURL_)
+		}
+		httpClient = &http.Client{
+			Transport: transport,
+			Timeout:   time.Duration(timeout) * time.Second,
+		}
 	}
-	client.HttpClient = &http.Client{
-		Transport: transport,
-		Timeout:   time.Duration(timeout) * time.Second,
-	}
+	client.HttpClient = httpClient
 	return &client
 }
 
