@@ -384,7 +384,7 @@ func (ws *SwapWS) handleMsg(messageType int, msg []byte) {
 // NewSwapWS 创建永续合约WS
 // wsURL:
 // wss://real.okex.com:8443/ws/v3
-func NewSwapWS(wsURL string, proxy func(*http.Request) (*url.URL, error), accessKey string, secretKey string, passphrase string) *SwapWS {
+func NewSwapWS(wsURL string, accessKey string, secretKey string, passphrase string) *SwapWS {
 	ws := &SwapWS{
 		wsURL:         wsURL,
 		accessKey:     accessKey,
@@ -396,7 +396,6 @@ func NewSwapWS(wsURL string, proxy func(*http.Request) (*url.URL, error), access
 	ws.ctx, ws.cancel = context.WithCancel(context.Background())
 	ws.conn = recws.RecConn{
 		KeepAliveTimeout: 10 * time.Second,
-		Proxy:            proxy,
 	}
 	ws.conn.SubscribeHandler = ws.subscribeHandler
 	return ws
