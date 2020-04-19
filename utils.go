@@ -383,3 +383,14 @@ func GetUnderlyingUri(uri, underlying string) string {
 func FlateUnCompress(data []byte) ([]byte, error) {
 	return ioutil.ReadAll(flate.NewReader(bytes.NewReader(data)))
 }
+
+// "socks5://127.0.0.1:1080"
+func ParseProxy(proxyURL string) (res func(*http.Request) (*url.URL, error), err error) {
+	var purl *url.URL
+	purl, err = url.Parse(proxyURL)
+	if err != nil {
+		return
+	}
+	res = http.ProxyURL(purl)
+	return
+}

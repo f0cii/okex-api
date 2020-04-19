@@ -31,7 +31,7 @@ type SwapWS struct {
 
 	ctx    context.Context
 	cancel context.CancelFunc
-	wsConn recws.RecConn
+	conn   recws.RecConn
 
 	subscriptions map[string]interface{}
 
@@ -57,7 +57,7 @@ func (ws *SwapWS) SetProxy(proxyURL string) (err error) {
 		return
 	}
 	log.Printf("[ws][%s] proxy url:%s", proxyURL, purl)
-	ws.wsConn.Proxy = http.ProxyURL(purl)
+	ws.conn.Proxy = http.ProxyURL(purl)
 	return
 }
 
@@ -197,12 +197,12 @@ func (ws *SwapWS) subscribeHandler() error {
 }
 
 func (ws *SwapWS) sendWSMessage(msg interface{}) error {
-	return ws.wsConn.WriteJSON(msg)
+	return ws.conn.WriteJSON(msg)
 }
 
 func (ws *SwapWS) Start() {
 	log.Printf("wsURL: %v", ws.wsURL)
-	ws.wsConn.Dial(ws.wsURL, nil)
+	ws.conn.Dial(ws.wsURL, nil)
 	go ws.run()
 }
 
@@ -211,11 +211,11 @@ func (ws *SwapWS) run() {
 	for {
 		select {
 		case <-ctx.Done():
-			go ws.wsConn.Close()
-			log.Printf("Websocket closed %s", ws.wsConn.GetURL())
+			go ws.conn.Close()
+			log.Printf("Websocket closed %s", ws.conn.GetURL())
 			return
 		default:
-			messageType, msg, err := ws.wsConn.ReadMessage()
+			messageType, msg, err := ws.conn.ReadMessage()
 			if err != nil {
 				log.Printf("Read error: %v", err)
 				time.Sleep(100 * time.Millisecond)
@@ -384,7 +384,7 @@ func (ws *SwapWS) handleMsg(messageType int, msg []byte) {
 // NewSwapWS 创建永续合约WS
 // wsURL:
 // wss://real.okex.com:8443/ws/v3
-func NewSwapWS(wsURL string, accessKey string, secretKey string, passphrase string) *SwapWS {
+func NewSwapWS(wsURL string, proxy func(*http.Request) (*url.URL, error), accessKey string, secretKey string, passphrase string) *SwapWS {
 	ws := &SwapWS{
 		wsURL:         wsURL,
 		accessKey:     accessKey,
@@ -394,9 +394,10 @@ func NewSwapWS(wsURL string, accessKey string, secretKey string, passphrase stri
 		dobMap:        make(map[string]*DepthOrderBook),
 	}
 	ws.ctx, ws.cancel = context.WithCancel(context.Background())
-	ws.wsConn = recws.RecConn{
+	ws.conn = recws.RecConn{
 		KeepAliveTimeout: 10 * time.Second,
+		Proxy:            proxy,
 	}
-	ws.wsConn.SubscribeHandler = ws.subscribeHandler
+	ws.conn.SubscribeHandler = ws.subscribeHandler
 	return ws
 }

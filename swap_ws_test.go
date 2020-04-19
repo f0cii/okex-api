@@ -18,13 +18,12 @@ func newSwapWSForTest() *FuturesWS {
 	secretKey := viper.GetString("secret_key")
 	passphrase := viper.GetString("passphrase")
 	wsURL := "wss://real.okex.com:8443/ws/v3"
-	ws := NewFuturesWS(wsURL,
-		accessKey, secretKey, passphrase)
-	//err = ws.SetProxy("socks5://127.0.0.1:1080")
+	ws := NewFuturesWS(wsURL, accessKey, secretKey, passphrase)
+	err = ws.SetProxy("socks5://127.0.0.1:1080")
 	////ws.SetProxy("http://127.0.0.1:1080")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	if err != nil {
+		log.Fatal(err)
+	}
 	return ws
 }
 

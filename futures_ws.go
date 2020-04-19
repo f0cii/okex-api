@@ -31,7 +31,7 @@ type FuturesWS struct {
 
 	ctx    context.Context
 	cancel context.CancelFunc
-	wsConn recws.RecConn
+	conn   recws.RecConn
 
 	subscriptions map[string]interface{}
 
@@ -57,7 +57,7 @@ func (ws *FuturesWS) SetProxy(proxyURL string) (err error) {
 		return
 	}
 	log.Printf("[ws][%s] proxy url:%s", proxyURL, purl)
-	ws.wsConn.Proxy = http.ProxyURL(purl)
+	ws.conn.Proxy = http.ProxyURL(purl)
 	return
 }
 
@@ -197,12 +197,12 @@ func (ws *FuturesWS) subscribeHandler() error {
 }
 
 func (ws *FuturesWS) sendWSMessage(msg interface{}) error {
-	return ws.wsConn.WriteJSON(msg)
+	return ws.conn.WriteJSON(msg)
 }
 
 func (ws *FuturesWS) Start() {
 	log.Printf("wsURL: %v", ws.wsURL)
-	ws.wsConn.Dial(ws.wsURL, nil)
+	ws.conn.Dial(ws.wsURL, nil)
 	go ws.run()
 }
 
@@ -211,11 +211,11 @@ func (ws *FuturesWS) run() {
 	for {
 		select {
 		case <-ctx.Done():
-			go ws.wsConn.Close()
-			log.Printf("Websocket closed %s", ws.wsConn.GetURL())
+			go ws.conn.Close()
+			log.Printf("Websocket closed %s", ws.conn.GetURL())
 			return
 		default:
-			messageType, msg, err := ws.wsConn.ReadMessage()
+			messageType, msg, err := ws.conn.ReadMessage()
 			if err != nil {
 				log.Printf("Read error: %v", err)
 				time.Sleep(100 * time.Millisecond)
@@ -413,9 +413,9 @@ func NewFuturesWS(wsURL string, accessKey string, secretKey string, passphrase s
 		dobMap:        make(map[string]*DepthOrderBook),
 	}
 	ws.ctx, ws.cancel = context.WithCancel(context.Background())
-	ws.wsConn = recws.RecConn{
+	ws.conn = recws.RecConn{
 		KeepAliveTimeout: 10 * time.Second,
 	}
-	ws.wsConn.SubscribeHandler = ws.subscribeHandler
+	ws.conn.SubscribeHandler = ws.subscribeHandler
 	return ws
 }
