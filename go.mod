@@ -7,6 +7,6 @@ require (
 	github.com/json-iterator/go v1.1.9
 	github.com/recws-org/recws v1.2.1
 	github.com/spf13/viper v1.6.3
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
 	github.com/tidwall/gjson v1.6.0
 )
