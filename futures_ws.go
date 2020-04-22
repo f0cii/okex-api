@@ -28,6 +28,7 @@ type FuturesWS struct {
 	accessKey  string
 	secretKey  string
 	passphrase string
+	debugMode  bool
 
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -235,6 +236,11 @@ func (ws *FuturesWS) run() {
 
 func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 	ret := gjson.ParseBytes(msg)
+
+	if ws.debugMode {
+		log.Printf("%v", string(msg))
+	}
+
 	// 登录成功
 	// {"event":"login","success":true}
 
@@ -403,12 +409,13 @@ func (ws *FuturesWS) handleMsg(messageType int, msg []byte) {
 // NewFuturesWS 创建合约WS
 // wsURL:
 // wss://real.okex.com:8443/ws/v3
-func NewFuturesWS(wsURL string, accessKey string, secretKey string, passphrase string) *FuturesWS {
+func NewFuturesWS(wsURL string, accessKey string, secretKey string, passphrase string, debugMode bool) *FuturesWS {
 	ws := &FuturesWS{
 		wsURL:         wsURL,
 		accessKey:     accessKey,
 		secretKey:     secretKey,
 		passphrase:    passphrase,
+		debugMode:     debugMode,
 		subscriptions: make(map[string]interface{}),
 		dobMap:        make(map[string]*DepthOrderBook),
 	}

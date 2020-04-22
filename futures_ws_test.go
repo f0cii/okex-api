@@ -20,13 +20,12 @@ func newFuturesWSForTest() *FuturesWS {
 	wsURL := "wss://real.okex.com:8443/ws/v3"
 
 	ws := NewFuturesWS(wsURL,
-		accessKey, secretKey, passphrase)
+		accessKey, secretKey, passphrase, true)
 	err = ws.SetProxy("socks5://127.0.0.1:1080")
-	ws.SetProxy("socks5://127.0.0.1:1080")
 	//ws.SetProxy("http://127.0.0.1:1080")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	if err != nil {
+		log.Fatal(err)
+	}
 	return ws
 }
 
@@ -55,6 +54,17 @@ func TestFuturesWS_Depth20(t *testing.T) {
 		log.Printf("%#v", ob)
 	})
 	ws.SubscribeDepthL2Tbt("depthL2_1", "BTC-USD-200626")
+	ws.Start()
+
+	select {}
+}
+
+func TestFuturesWS_SubscribeOrder(t *testing.T) {
+	ws := newFuturesWSForTest()
+	ws.SetOrderCallback(func(orders []WSOrder) {
+		log.Printf("%#v", orders)
+	})
+	ws.SubscribeOrder("order_1", "BTC-USD-200626")
 	ws.Start()
 
 	select {}

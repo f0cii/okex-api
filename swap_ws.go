@@ -28,6 +28,7 @@ type SwapWS struct {
 	accessKey  string
 	secretKey  string
 	passphrase string
+	debugMode  bool
 
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -384,12 +385,13 @@ func (ws *SwapWS) handleMsg(messageType int, msg []byte) {
 // NewSwapWS 创建永续合约WS
 // wsURL:
 // wss://real.okex.com:8443/ws/v3
-func NewSwapWS(wsURL string, accessKey string, secretKey string, passphrase string) *SwapWS {
+func NewSwapWS(wsURL string, accessKey string, secretKey string, passphrase string, debugMode bool) *SwapWS {
 	ws := &SwapWS{
 		wsURL:         wsURL,
 		accessKey:     accessKey,
 		secretKey:     secretKey,
 		passphrase:    passphrase,
+		debugMode:     debugMode,
 		subscriptions: make(map[string]interface{}),
 		dobMap:        make(map[string]*DepthOrderBook),
 	}
