@@ -196,8 +196,12 @@ func (client *Client) GetSpotInstrumentBook(instrumentId string, optionalParams 
 	uri := GetInstrumentIdUri(SPOT_INSTRUMENT_BOOK, instrumentId)
 	if optionalParams != nil && len(optionalParams) > 0 {
 		optionals := NewParams()
-		optionals["size"] = (optionalParams)["size"]
-		optionals["depth"] = (optionalParams)["depth"]
+		if size, ok := optionalParams["size"]; ok {
+			optionals["size"] = size
+		}
+		if depth, ok := optionalParams["depth"]; ok {
+			optionals["depth"] = depth
+		}
 		uri = BuildParams(uri, optionals)
 	}
 
