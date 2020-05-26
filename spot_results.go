@@ -18,8 +18,8 @@ type GetSpotAccountsResultItem struct {
 // size	String	数量
 // num_orders	String	组成此条深度的订单数量
 type SpotInstrumentBookResult struct {
-	Asks      [][]string `json:"asks,string"`
-	Bids      [][]string `json:"bids,string"`
+	Asks      [][]string `json:"asks"`
+	Bids      [][]string `json:"bids"`
 	Timestamp string     `json:"timestamp"`
 }
 
