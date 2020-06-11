@@ -286,6 +286,7 @@ type FuturesGetOrderResult struct {
 	FilledQty    float64 `json:"filled_qty,string"`
 	Fee          float64 `json:"fee,string"`
 	OrderId      string  `json:"order_id"`
+	ClientOId    string  `json:"client_oid"`
 	Price        float64 `json:"price,string"`
 	PriceAvg     float64 `json:"price_avg,string"`
 	Status       string  `json:"status"`
