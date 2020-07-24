@@ -135,7 +135,7 @@ func TestSkipList1(t *testing.T) {
 	list.Insert(item0)
 
 	fItem, ok := list.Find(Item{Price: 7000.0, Amount: 200000.0})
-	t.Logf("ok:%v",ok)
+	t.Logf("ok:%v", ok)
 	//assert.True(t, ok)
 	v := fItem.GetValue().(Item)
 	assert.Equal(t, v.ExtractKey(), 7000.0)
@@ -177,12 +177,12 @@ func TestDepthOrderBook_GetOrderBook1(t *testing.T) {
 	depthL2 := parseWSDepthL2TbtResult(partialString)
 
 	dob.Update(ActionDepthL2Partial, &depthL2.Data[0])
-	t.Logf("%+v",dob.asks.String())
+	t.Logf("%+v", dob.asks.String())
 	var ok bool
 	//_,ok=dob.asks.Find(Item{Price:0.01824})
 	//t.Logf("查找0.01824%+v",ok)
-	_,ok=dob.asks.Find(Item{Price:0.01826})
-	t.Logf("查找0.01826%+v",ok)
+	_, ok = dob.asks.Find(Item{Price: 0.01826})
+	t.Logf("查找0.01826%+v", ok)
 	assert.True(t, ok)
 
 	// 更新
@@ -190,8 +190,13 @@ func TestDepthOrderBook_GetOrderBook1(t *testing.T) {
 	depthL2 = parseWSDepthL2TbtResult(updateString)
 
 	dob.Update(ActionDepthL2Update, &depthL2.Data[0])
-	t.Logf("! %+v",dob.asks.String())
+	t.Logf("! %+v", dob.asks.String())
 
-	_,ok=dob.asks.Find(Item{Price:0.01826})
-	t.Logf("查找0.01826%+v",ok)
+	_, ok = dob.asks.Find(Item{Price: 0.01826})
+	t.Logf("查找0.01826%+v", ok)
+
+	ob := dob.GetOrderBook(100)
+	for _, v := range ob.Asks {
+		t.Logf("ask: %#v", v)
+	}
 }

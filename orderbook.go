@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/MauriceGit/skiplist"
 	"strconv"
+	"time"
 )
 
 const (
@@ -42,8 +43,10 @@ func (d *DepthOrderBook) GetInstrumentID() string {
 
 func (d *DepthOrderBook) Update(action string, data *WSDepthL2Tbt) {
 	if action == ActionDepthL2Partial {
-		d.asks = skiplist.New()
-		d.bids = skiplist.New()
+		d.asks = skiplist.NewSeedEps(time.Now().UTC().UnixNano(), 0.00000001)
+		d.bids = skiplist.NewSeedEps(time.Now().UTC().UnixNano(), 0.00000001)
+		//d.asks = skiplist.New()
+		//d.bids = skiplist.New()
 		// 举例: ["411.8", "10", "1", "4"]
 		// 411.8为深度价格，10为此价格的合约张数，1为此价格的强平单个数，4为此价格的订单个数。
 		for _, ask := range data.Asks {
