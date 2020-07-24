@@ -128,3 +128,70 @@ func TestDepthOrderBook_GetOrderBook(t *testing.T) {
 	d := time.Now().Sub(start)
 	t.Logf("d: %v %v ns", d.String(), d.Nanoseconds()/n)
 }
+
+func TestSkipList1(t *testing.T) {
+	list := skiplist.New()
+	item0 := Item{Price: 7000.0, Amount: 10.0}
+	list.Insert(item0)
+
+	fItem, ok := list.Find(Item{Price: 7000.0, Amount: 200000.0})
+	t.Logf("ok:%v",ok)
+	//assert.True(t, ok)
+	v := fItem.GetValue().(Item)
+	assert.Equal(t, v.ExtractKey(), 7000.0)
+	assert.Equal(t, v.Amount, 10.0)
+
+	fItem, ok = list.Find(item0)
+	assert.True(t, ok)
+	v = fItem.GetValue().(Item)
+	assert.Equal(t, v.ExtractKey(), 7000.0)
+	assert.Equal(t, v.Price, 7000.0)
+	assert.Equal(t, v.Amount, 10.0)
+
+	ok = list.ChangeValue(fItem, Item{7000.0, 20.0})
+	assert.True(t, ok)
+	smallest := list.GetSmallestNode()
+	largest := list.GetLargestNode()
+	assert.NotNil(t, smallest)
+	assert.NotNil(t, largest)
+	assert.Equal(t, smallest, largest)
+
+	assert.Equal(t, smallest.GetValue().(Item).Amount, 20.0)
+
+	fItem, ok = list.Find(Item{Price: 6000.0, Amount: 100})
+	assert.False(t, ok)
+	assert.Nil(t, fItem)
+}
+
+//func parseWSDepthL2TbtResult(s string) (result WSDepthL2TbtResult) {
+//	err := json.Unmarshal([]byte(s), &result)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	return
+//}
+
+func TestDepthOrderBook_GetOrderBook1(t *testing.T) {
+	dob := NewDepthOrderBook("TRX-USDT-201225")
+	partialString := `{"table":"futures/depth_l2_tbt","action":"partial","data":[{"instrument_id":"TRX-USDT-201225","asks":[["0.01815","61","0","2"],["0.01816","39","0","3"],["0.01819","301","0","4"],["0.0182","4","0","1"],["0.01821","176","0","1"],["0.01823","180","0","2"],["0.01824","190","0","2"],["0.01825","346","0","1"],["0.01826","434","0","3"],["0.01828","12","0","1"],["0.01829","1751","0","2"],["0.01834","150","0","1"],["0.01839","102","0","1"],["0.01846","10","0","1"],["0.01848","50","0","1"],["0.01887","8661","0","1"],["0.01954","6","0","1"],["0.01959","3464","0","1"],["0.0198","2","0","1"],["0.0199","3","0","1"],["0.01999","10","0","1"],["0.02045","8666","0","1"],["0.02223","43277","0","1"],["0.03599","395","0","1"]],"bids":[["0.01813","20","0","1"],["0.01811","33","0","3"],["0.0181","81","0","3"],["0.01809","308","0","2"],["0.01807","192","0","3"],["0.01805","192","0","2"],["0.01804","195","0","2"],["0.01803","356","0","2"],["0.01802","188","0","1"],["0.01801","5","0","1"],["0.018","6","0","1"],["0.01799","1735","0","1"],["0.01798","7","0","1"],["0.01795","50","0","1"],["0.01793","243","0","1"],["0.01788","150","0","1"],["0.01783","102","0","1"],["0.01774","50","0","1"],["0.01741","8664","0","1"],["0.0173","1","0","1"],["0.0165","2","0","1"],["0.01646","1","0","1"],["0.0161","3471","0","1"],["0.01524","8658","0","1"],["0.01346","43270","0","1"]],"timestamp":"2020-07-23T08:52:50.202Z","checksum":1060528549}]}`
+	depthL2 := parseWSDepthL2TbtResult(partialString)
+
+	dob.Update(ActionDepthL2Partial, &depthL2.Data[0])
+	t.Logf("%+v",dob.asks.String())
+	var ok bool
+	//_,ok=dob.asks.Find(Item{Price:0.01824})
+	//t.Logf("查找0.01824%+v",ok)
+	_,ok=dob.asks.Find(Item{Price:0.01826})
+	t.Logf("查找0.01826%+v",ok)
+	assert.True(t, ok)
+
+	// 更新
+	updateString := `{"table":"futures/depth_l2_tbt","action":"update","data":[{"instrument_id":"TRX-USDT-201225","asks":[["0.01823","174","0","1"],["0.01824","182","0","1"],["0.01826","424","0","2"],["0.01828","0","0","0"]],"bids":[],"timestamp":"2020-07-23T08:52:50.694Z","checksum":-1843888222}]}`
+	depthL2 = parseWSDepthL2TbtResult(updateString)
+
+	dob.Update(ActionDepthL2Update, &depthL2.Data[0])
+	t.Logf("! %+v",dob.asks.String())
+
+	_,ok=dob.asks.Find(Item{Price:0.01826})
+	t.Logf("查找0.01826%+v",ok)
+}

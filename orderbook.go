@@ -21,7 +21,7 @@ func (e Item) ExtractKey() float64 {
 }
 
 func (e Item) String() string {
-	return fmt.Sprintf("%.2f", e.Price)
+	return fmt.Sprintf("%.8f", e.Price)
 }
 
 type OrderBook struct {
