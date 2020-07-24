@@ -195,7 +195,7 @@ func TestDepthOrderBook_GetOrderBook1(t *testing.T) {
 	_, ok = dob.asks.Find(Item{Price: 0.01826})
 	t.Logf("查找0.01826%+v", ok)
 
-	ob := dob.GetOrderBook(100)
+	ob := dob.GetOrderBook(20)
 	for _, v := range ob.Asks {
 		t.Logf("ask: %#v", v)
 	}
